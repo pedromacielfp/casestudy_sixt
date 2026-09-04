@@ -267,3 +267,34 @@ recommendations 1-3 only:
     uv run python scratchpad/verify.py      # 40,291 checks, 0 failures
     ./node_modules/.bin/tsc --noEmit        # clean
     npm run build                           # clean
+
+> Now can you please make our chat ai smarter? instead of just aggregated data
+> be able to also provide database recommendations
+
+The assistant could report headline KPIs but was told "do not give advice". Two
+changes:
+
+  1. lib/chat-insights.ts (new): buildInsightsBlock() rolls the customer array
+     up into the patterns a recommendation needs - the B2C/B2P repeat gap
+     (40% vs 20% All Time), campaign engagement lift + reach (engaged 39.3% vs
+     19.8%, 52% reached), the LTV-tercile relationship (High 65% / Med 21% /
+     Low 4%), rebooking timing (1st->2nd gap p25/median/p75 = 68/77/85 days),
+     and the frequent-vs-seasonal repeater mix (1101 / 99). Reuses the tested
+     channelComparison / engagementBreakdown / ltvBreakdown fns so the numbers
+     match the dashboard exactly. Still only roll-ups reach the model - never
+     the customer rows.
+  2. lib/chat-context.ts: buildSystemPrompt(crm) now appends an INSIGHTS
+     section and splits the rules into Factual (1-3 sentences, exact value)
+     vs Recommendation (3-5 sentences / 4 bullets, must cite the figures,
+     framed as hypotheses, no promised outcomes, no invented uplift, no
+     financial advice).
+  3. api/chat/route.ts: max_tokens 400 -> 700, temperature 0.1 -> 0.2.
+  4. components/dashboard/chat.tsx: recommendation-style suggestion chips,
+     subtitle "Answers and recommendations from this dataset".
+
+  Data + generator unchanged (same seed).
+
+    ./node_modules/.bin/tsc --noEmit        # clean
+    npm run build                           # clean
+    POST /api/chat "where is the biggest opportunity..."  # cited, hedged rec
+    POST /api/chat "B2P repeat rate in 2025?"             # still one line

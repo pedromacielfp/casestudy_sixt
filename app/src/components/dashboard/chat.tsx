@@ -9,8 +9,9 @@ type Message = { role: "user" | "assistant"; content: string };
 
 const SUGGESTIONS = [
   "What is the All Rentals repeat conversion rate?",
-  "How is Gross Volume defined?",
-  "How do B2C and B2P compare in 2026?",
+  "Where is the biggest opportunity to lift repeat rate?",
+  "How do B2C and B2P compare, and what would you do about it?",
+  "When should win-back outreach be triggered?",
 ];
 
 export function ChatWidget() {
@@ -65,7 +66,7 @@ export function ChatWidget() {
             <div className="flex flex-col">
               <span className="text-sm font-semibold">Dashboard assistant</span>
               <span className="text-[11px] text-muted-foreground">
-                Answers only from the figures on this page
+                Answers and recommendations from this dataset
               </span>
             </div>
             <button
@@ -85,7 +86,8 @@ export function ChatWidget() {
             {messages.length === 0 && (
               <div className="flex flex-col gap-2">
                 <p className="text-sm text-muted-foreground">
-                  Ask about the KPIs, definitions or how any figure is calculated.
+                  Ask about the KPIs and definitions, or for recommendations
+                  grounded in the data.
                 </p>
                 {SUGGESTIONS.map((q) => (
                   <button
@@ -135,7 +137,7 @@ export function ChatWidget() {
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask about the numbers"
+              placeholder="Ask about the numbers or what to do"
               className="min-w-0 flex-1 rounded-md border border-input bg-[rgba(255,255,255,0.04)] px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-[var(--ring)]"
             />
             <button

@@ -18,7 +18,7 @@ async function systemPrompt(): Promise<string> {
     "utf-8",
   );
   const crm = JSON.parse(raw) as Crm;
-  contextCache = buildSystemPrompt(crm.meta, crm.kpis);
+  contextCache = buildSystemPrompt(crm);
   return contextCache;
 }
 
@@ -61,8 +61,8 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         model: process.env.OPENROUTER_MODEL || FALLBACK_MODEL,
-        temperature: 0.1,
-        max_tokens: 400,
+        temperature: 0.2,
+        max_tokens: 700,
         messages: [
           { role: "system", content: await systemPrompt() },
           ...messages,
