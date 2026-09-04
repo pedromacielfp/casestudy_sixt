@@ -1,0 +1,585 @@
+<title>Converting the 70%</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --ground: #fcfcfb;
+    --surface: #ffffff;
+    --panel: rgba(17, 17, 17, 0.035);
+    --ink: #111111;
+    --muted: rgba(17, 17, 17, 0.56);
+    --faint: rgba(17, 17, 17, 0.40);
+    --rule: rgba(17, 17, 17, 0.13);
+    --rule-strong: rgba(17, 17, 17, 0.28);
+    --accent: #ff5f00;
+    --accent-inkwash: #fff1e8;
+    --accent-line: rgba(255, 95, 0, 0.35);
+    --sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --display: "Archivo", var(--sans);
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #15120f;
+      --surface: #1c1916;
+      --panel: rgba(244, 241, 236, 0.05);
+      --ink: #f3f0ea;
+      --muted: rgba(243, 240, 234, 0.60);
+      --faint: rgba(243, 240, 234, 0.42);
+      --rule: rgba(243, 240, 234, 0.16);
+      --rule-strong: rgba(243, 240, 234, 0.34);
+      --accent: #ff7a2e;
+      --accent-inkwash: rgba(255, 122, 46, 0.13);
+      --accent-line: rgba(255, 122, 46, 0.42);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #15120f;
+    --surface: #1c1916;
+    --panel: rgba(244, 241, 236, 0.05);
+    --ink: #f3f0ea;
+    --muted: rgba(243, 240, 234, 0.60);
+    --faint: rgba(243, 240, 234, 0.42);
+    --rule: rgba(243, 240, 234, 0.16);
+    --rule-strong: rgba(243, 240, 234, 0.34);
+    --accent: #ff7a2e;
+    --accent-inkwash: rgba(255, 122, 46, 0.13);
+    --accent-line: rgba(255, 122, 46, 0.42);
+  }
+
+  *,
+  *::before,
+  *::after { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 13.5px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  .sheet {
+    max-width: 53rem;
+    margin: 0 auto;
+    padding: 4rem 2.25rem 3.5rem;
+  }
+
+  /* ---- masthead ---- */
+  .masthead { display: flex; flex-direction: column; gap: 1rem; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(2.1rem, 5.4vw, 2.9rem);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .dek {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--muted);
+    max-width: 40ch;
+    margin: 0;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1.5rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--accent);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.03em;
+    color: var(--faint);
+  }
+  .meta b { color: var(--ink); font-weight: 500; }
+
+  /* ---- framing ---- */
+  .frame {
+    margin: 2.4rem 0 1rem;
+    font-size: 0.95rem;
+    line-height: 1.66;
+    max-width: 62ch;
+  }
+  .frame strong { font-weight: 600; }
+  .lead-figure {
+    font-family: var(--mono);
+    font-weight: 600;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---- initiatives ---- */
+  .initiatives {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .initiative {
+    display: grid;
+    grid-template-columns: 3.5rem 1fr;
+    gap: 0 1.5rem;
+    padding: 2.2rem 0;
+    border-top: 1px solid var(--rule);
+    break-inside: avoid;
+  }
+  .initiative:first-child { border-top: 1.5px solid var(--rule-strong); }
+
+  .numeral {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 2rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: transparent;
+    -webkit-text-stroke: 1.25px var(--rule-strong);
+    padding-top: 0.15rem;
+  }
+
+  .initiative-body { display: flex; flex-direction: column; gap: 1.1rem; min-width: 0; }
+
+  .initiative h2 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 1.24rem;
+    line-height: 1.2;
+    letter-spacing: -0.012em;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .bet {
+    margin: 0.35rem 0 0;
+    font-size: 0.95rem;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+
+  .block { display: flex; flex-direction: column; gap: 0.4rem; }
+
+  .label {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+
+  .flag {
+    background: var(--accent-inkwash);
+    border-left: 2px solid var(--accent);
+    padding: 0.7rem 0.9rem;
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+  .flag .where {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .flag .stat {
+    font-family: var(--mono);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .hypothesis {
+    font-size: 0.94rem;
+    line-height: 1.6;
+    padding-left: 0.9rem;
+    border-left: 1px solid var(--rule);
+  }
+  .hypothesis i {
+    font-family: var(--mono);
+    font-style: normal;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-right: 0.15rem;
+  }
+
+  dl.spec {
+    margin: 0;
+    display: grid;
+    grid-template-columns: minmax(7rem, max-content) 1fr;
+    gap: 0.4rem 1.1rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  dl.spec dt {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--faint);
+    padding-top: 0.15rem;
+  }
+  dl.spec dd { margin: 0; }
+  dl.spec .chan {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .metric-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 2rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  .metric-row > div { flex: 1 1 14rem; }
+  .metric-row .k {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--faint);
+    display: block;
+    margin-bottom: 0.15rem;
+  }
+  .metric-row .primary { color: var(--accent); font-weight: 500; }
+
+  .impact {
+    display: block;
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+  .impact .rating {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding: 0.18rem 0.5rem;
+    margin-right: 0.6rem;
+    border: 1px solid var(--rule-strong);
+    color: var(--ink);
+    transform: translateY(-1px);
+  }
+  .impact .rating.high {
+    border-color: var(--accent-line);
+    color: var(--accent);
+  }
+  .impact em { font-style: italic; }
+
+  /* ---- framework panel ---- */
+  .framework {
+    margin-top: 2.6rem;
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    padding: 1.6rem 1.6rem 1.7rem;
+    break-inside: avoid;
+  }
+  .framework h2 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 1.05rem;
+    letter-spacing: -0.01em;
+    margin: 0 0 1rem;
+  }
+  .framework ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+  .framework li {
+    display: grid;
+    grid-template-columns: minmax(8rem, max-content) 1fr;
+    gap: 0.3rem 1.1rem;
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+  .framework li span:first-child {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--faint);
+    padding-top: 0.1rem;
+  }
+  .framework code {
+    font-family: var(--mono);
+    font-size: 0.82em;
+    background: var(--accent-inkwash);
+    padding: 0.05rem 0.3rem;
+    color: var(--ink);
+  }
+
+  /* ---- footnotes ---- */
+  .notes {
+    margin-top: 2.2rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--rule);
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: var(--muted);
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+  .notes b {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin-right: 0.4rem;
+  }
+
+  a { color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  @media (max-width: 620px) {
+    .sheet { padding: 2.5rem 1.25rem 2.5rem; }
+    .initiative { grid-template-columns: 1fr; gap: 0.6rem; }
+    .numeral { -webkit-text-stroke-width: 1px; font-size: 1.6rem; }
+    dl.spec, .framework li { grid-template-columns: 1fr; gap: 0.15rem; }
+    dl.spec dt { padding-top: 0.4rem; }
+  }
+
+  @media print {
+    :root {
+      --ground: #ffffff;
+      --panel: #f6f4f1;
+    }
+    body { font-size: 10.5pt; line-height: 1.5; }
+    .sheet { max-width: none; padding: 0; }
+    .initiative { padding: 0.7rem 0; }
+    .framework, .initiative, .masthead { break-inside: avoid; }
+    h1 { font-size: 26pt; }
+    a { color: inherit; text-decoration: none; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+  @page { margin: 16mm 18mm; }
+</style>
+
+<div class="sheet">
+  <header class="masthead">
+    <p class="eyebrow">Growth &amp; CRM &nbsp;/&nbsp; Experiment brief</p>
+    <h1>Converting the 70%</h1>
+    <p class="dek">Three CRM experiments to move Sixt US leisure customers from one&#8209;time to repeat &mdash; each tied to a signal on the conversion dashboard.</p>
+    <div class="meta">
+      <span>Source&nbsp; <b>Sixt CRM Dashboard</b> (mock data)</span>
+      <span>North&#8209;star&nbsp; <b>Core Repeat Conversion Rate</b></span>
+      <span>Status&nbsp; <b>For review</b></span>
+    </div>
+  </header>
+
+  <p class="frame">
+    The US leisure book grows double digits year over year, but <strong>70% of customers rent once and never return</strong> &mdash; <span class="lead-figure">2,800</span> of the 4,000 in the current dataset. The Core Repeat Conversion Rate runs a few points above its 30% lifetime baseline and is trending up (<span class="lead-figure">32.6%</span> year&#8209;to&#8209;date 2026; 34.6% in 2024, 36.7% in 2025). Each experiment below targets a specific gap the dashboard surfaces. They are ordered by expected impact on that rate, and Initiatives&nbsp;1 and&nbsp;3 share one enrolled population so they compound.
+  </p>
+
+  <div class="initiatives">
+
+    <!-- 1 -->
+    <section class="initiative">
+      <div class="numeral">01</div>
+      <div class="initiative-body">
+        <div>
+          <h2>Put every one&#8209;time renter into a post&#8209;rental retention flow</h2>
+          <p class="bet">The bet: a light, well&#8209;timed sequence after the trip keeps Sixt in the consideration set for the next one.</p>
+        </div>
+
+        <div class="block">
+          <span class="label">Flagged in the dashboard</span>
+          <div class="flag">
+            <span class="where">Marketing Engagement.</span> Customers who engaged with a retention campaign repeat at <span class="stat">40%</span> versus <span class="stat">20%</span> for those who did not &mdash; and only <span class="stat">39%</span> of B2P customers are reached at all, against 66% of B2C. The single largest unworked lever on the page.
+          </div>
+        </div>
+
+        <div class="block">
+          <span class="label">Hypothesis</span>
+          <p class="hypothesis">
+            <i>If</i> a completed one&#8209;time rental is enrolled within 7 days into a four&#8209;touch flow (thank&#8209;you &rarr; destination tips &rarr; day&#8209;75 &ldquo;ready for your next trip&rdquo; &rarr; win&#8209;back at day 200),
+            <i>then</i> its probability of a second rental within 365 days rises by <b>&ge;&nbsp;3&nbsp;pp</b>,
+            <i>because</i> the barrier for most one&#8209;timers is recall at the moment of the next trip decision, not intent.
+          </p>
+        </div>
+
+        <div class="block">
+          <span class="label">A/B test</span>
+          <dl class="spec">
+            <dt>Unit</dt><dd>Individual customer, at rental completion.</dd>
+            <dt>Split</dt><dd>50 / 50, assigned at return. Continuous enrolment.</dd>
+            <dt>Treatment</dt><dd>Enrolled in the retention flow.</dd>
+            <dt>Control</dt><dd>Transactional messages only (receipt, damage, survey).</dd>
+            <dt>CRM channels</dt><dd class="chan">Email (primary) &middot; Push (if app installed) &middot; SMS (day&#8209;75 touch only)</dd>
+            <dt>Readout</dt><dd>Cohorts measured at 90 / 180 / 365 days.</dd>
+          </dl>
+        </div>
+
+        <div class="block">
+          <span class="label">Success metric</span>
+          <div class="metric-row">
+            <div><span class="k">Primary</span><span class="primary">Repeat conversion rate at 365 days, treatment vs control.</span> Ship on &ge;&nbsp;2&nbsp;pp absolute lift, 95% confidence.</div>
+            <div><span class="k">Secondary</span>Time&#8209;to&#8209;second&#8209;rental; rentals per customer at 365 days.</div>
+            <div><span class="k">Guardrail</span>Unsubscribe &lt; 0.5% per send; contribution margin per rental flat or up.</div>
+          </div>
+        </div>
+
+        <div class="block">
+          <span class="label">Impact on the goal</span>
+          <span class="impact"><span class="rating high">High &mdash; direct</span> The primary metric <em>is</em> the north&#8209;star. A 3&nbsp;pp lift across the enrolled base moves the blended rate ~2&nbsp;pp.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section class="initiative">
+      <div class="numeral">02</div>
+      <div class="initiative-body">
+        <div>
+          <h2>Move B2P (broker) customers onto a direct relationship</h2>
+          <p class="bet">The bet: B2P customers don&rsquo;t come back because their next booking sits with the broker, not Sixt &mdash; give them a reason to book direct once.</p>
+        </div>
+
+        <div class="block">
+          <span class="label">Flagged in the dashboard</span>
+          <div class="flag">
+            <span class="where">Channel Breakdown.</span> B2P repeats at <span class="stat">21%</span> against B2C&rsquo;s <span class="stat">44%</span>; B2P is <span class="stat">80%</span> one&#8209;time and is half the customer base &mdash; the largest single drag on the blended rate.
+          </div>
+        </div>
+
+        <div class="block">
+          <span class="label">Hypothesis</span>
+          <p class="hypothesis">
+            <i>If</i> a B2P customer is prompted at pickup or return to create a direct Sixt account and given a bounded incentive on their next booking on sixt.com (&euro;25 off, expires in 6 months),
+            <i>then</i> their 365&#8209;day repeat rate moves a third of the way toward B2C (<b>21% &rarr; ~29%</b>),
+            <i>because</i> a first direct booking establishes the account, the payment method and the marketing consent that a broker booking never creates.
+          </p>
+        </div>
+
+        <div class="block">
+          <span class="label">A/B test</span>
+          <dl class="spec">
+            <dt>Unit</dt><dd>B2P rental, randomised at pickup.</dd>
+            <dt>Split</dt><dd>50 / 50, stratified by broker partner.</dd>
+            <dt>Treatment</dt><dd>Account&#8209;creation prompt + next&#8209;direct&#8209;booking incentive.</dd>
+            <dt>Control</dt><dd>Standard B2P experience, no prompt.</dd>
+            <dt>CRM channels</dt><dd class="chan">Email + SMS (broker customers rarely have the app) &middot; QR prompt on the rental agreement</dd>
+            <dt>Readout</dt><dd>180 and 365 days; funnel checked weekly.</dd>
+          </dl>
+        </div>
+
+        <div class="block">
+          <span class="label">Success metric</span>
+          <div class="metric-row">
+            <div><span class="k">Primary</span><span class="primary">365&#8209;day repeat conversion rate of treated B2P customers vs control.</span></div>
+            <div><span class="k">Funnel</span>Direct&#8209;account creation rate &rarr; next rental books direct &rarr; incentive redemption.</div>
+            <div><span class="k">Guardrail</span>Incremental margin per converted customer positive after incentive cost; control isolates customers who would have rebooked anyway.</div>
+          </div>
+        </div>
+
+        <div class="block">
+          <span class="label">Impact on the goal</span>
+          <span class="impact"><span class="rating high">High</span> Closing a third of the B2C&ndash;B2P gap on half the base lifts the blended Core Repeat Conversion Rate ~2&ndash;3&nbsp;pp.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 -->
+    <section class="initiative">
+      <div class="numeral">03</div>
+      <div class="initiative-body">
+        <div>
+          <h2>Time re&#8209;engagement to the two natural rebooking windows</h2>
+          <p class="bet">The bet: a message that lands inside a trip&#8209;planning window converts far better than a fixed monthly newsletter.</p>
+        </div>
+
+        <div class="block">
+          <span class="label">Flagged in the dashboard</span>
+          <div class="flag">
+            <span class="where">Cohort &amp; Frequency.</span> Time&#8209;to&#8209;next&#8209;rental has two clean clusters &mdash; <span class="stat">60&ndash;90 days</span> (frequent renters) and <span class="stat">~330&ndash;365 days</span> (annual&#8209;trip renters). The cohort matrix also shows October&ndash;December acquisitions rebooking at near zero.
+          </div>
+        </div>
+
+        <div class="block">
+          <span class="label">Hypothesis</span>
+          <p class="hypothesis">
+            <i>If</i> the generic monthly newsletter is replaced by two behaviour&#8209;timed triggers &mdash; a &ldquo;next trip?&rdquo; nudge at day&nbsp;75 and a &ldquo;book your summer trip again&rdquo; reminder at month&nbsp;11 for summer renters &mdash;
+            <i>then</i> second&#8209;rental rate rises, most for the Q4&#8209;acquired cohort,
+            <i>because</i> the send now coincides with when the customer is actually choosing their next rental.
+          </p>
+        </div>
+
+        <div class="block">
+          <span class="label">A/B test</span>
+          <dl class="spec">
+            <dt>Population</dt><dd>Within Initiative&nbsp;1&rsquo;s enrolled group.</dd>
+            <dt>Split</dt><dd>50 / 50, stratified by acquisition month (Jun&ndash;Aug vs Oct&ndash;Dec).</dd>
+            <dt>Treatment</dt><dd>Cadence&#8209;timed triggers, replacing the newsletter.</dd>
+            <dt>Control</dt><dd>Generic monthly newsletter.</dd>
+            <dt>CRM channels</dt><dd class="chan">Day&#8209;75: Email + SMS + Push &middot; Month&#8209;11: Email + Push</dd>
+            <dt>Readout</dt><dd>120 days (frequent arm), 400 days (seasonal arm).</dd>
+          </dl>
+        </div>
+
+        <div class="block">
+          <span class="label">Success metric</span>
+          <div class="metric-row">
+            <div><span class="k">Primary</span><span class="primary">Second&#8209;rental rate at 120 days (frequent) and 400 days (seasonal) vs control.</span></div>
+            <div><span class="k">Efficiency</span>Incremental repeat conversions per 1,000 sends; send volume neutral or lower.</div>
+            <div><span class="k">Segment</span>Repeat&#8209;rate lift for the Oct&ndash;Dec acquisition cohort specifically.</div>
+          </div>
+        </div>
+
+        <div class="block">
+          <span class="label">Impact on the goal</span>
+          <span class="impact"><span class="rating">Medium &mdash; compounding</span> Smaller standalone effect, but it multiplies Initiative&nbsp;1 (same population, better timing) and rescues the near&#8209;zero Q4 cohort.</span>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <section class="framework">
+    <h2>How every test is measured</h2>
+    <ul>
+      <li><span>North&#8209;star</span><span>Core Repeat Conversion Rate &mdash; unique customers in an acquisition cohort with a 2nd&#8209;plus lifetime rental &divide; cohort size &mdash; read at fixed horizons <code>90 / 180 / 365 / 400 days</code> because rebooking is bimodal.</span></li>
+      <li><span>Design</span><span>Randomised holdout, never pre / post. Seasonality and the double&#8209;digit growth trend would otherwise contaminate the read.</span></li>
+      <li><span>Incrementality</span><span>A permanent <code>10%</code> global control, refreshed yearly, measures the whole programme against no CRM contact.</span></li>
+      <li><span>Decision rule</span><span>Ship when the 365&#8209;day repeat&#8209;rate lift is <code>&ge; +2 pp</code> absolute at 95% confidence <em>and</em> contribution margin per customer is not down.</span></li>
+      <li><span>Guardrails</span><span>Opt&#8209;out rate, spam&#8209;complaint rate, margin per rental, and send fatigue (open / click&#8209;through trend) tracked on every arm.</span></li>
+      <li><span>Power</span><span>Detecting <code>+2 pp</code> on a ~20% base needs ~6,500 customers per arm (80% power, 95% conf). Initiatives 1 &amp; 3 reach that in ~1 quarter at production volume; Initiative 2 (B2P only) in ~4&ndash;5 months.</span></li>
+    </ul>
+  </section>
+
+  <div class="notes">
+    <p><b>Data</b> Figures are from the Sixt CRM Dashboard, which runs on generated mock data, not real Sixt results.</p>
+    <p><b>Signals</b> The engagement&#8209;to&#8209;repeat and LTV&#8209;to&#8209;repeat relationships shown on the dashboard are correlational by construction. Effect sizes above are targets to be established by the tests, not assumptions.</p>
+    <p><b>Sequencing</b> Run 1 and 2 in parallel (different populations). Start 3 once Initiative&nbsp;1 has a stable enrolled base (~1 month in).</p>
+  </div>
+</div>

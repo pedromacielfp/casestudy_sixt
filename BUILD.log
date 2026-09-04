@@ -1,0 +1,269 @@
+# BUILD.log
+
+User-given commands and instructions for this build, in order.
+
+---
+
+## Part 1
+
+> Hey Claude! Please read AGENTS.md and start Part 1. Let me know when it is
+> done, explaining me what was done before we move to the next part.
+
+Interpreted as Strategy step 1: write the phase-by-phase plan with success
+criteria, scaffold the project, and add a clean .gitignore.
+
+Shell commands run:
+
+    git init
+    mkdir -p app analytics/output app/public/data
+
+---
+
+## Part 2
+
+> Start part 2 please
+
+Strategy step 2: generate mock CRM data with Python, computing KPIs, LTV
+clusters, engagement and year boundaries into a single static JSON file.
+
+Shell commands run:
+
+    cd analytics && uv init --name analytics --no-workspace --bare
+    uv run python generate.py        # writes output/crm.json and ../app/public/data/crm.json
+
+> So, please review this Data part as its the most important for the project. See
+> if theres any implications with actual customer behaviour for car rentals. QA
+> everything it was done and provide feedback. do not implement anything
+
+Delivered a written review (realism + QA). No code changes.
+
+> Please implement it to part 2 as recommended
+
+Reworked generate.py per the four review recommendations:
+  1. 2023 is now a near-full baseline year   -> 2024 YoY gross is +~17%, not +112%
+  2. Frequent repeaters can span calendar years (concentrated / sustained / seasonal
+     profiles) -> ~7% of customers now rent across >1 year; cohort 12+ column has data
+  3. LTV decoupled from rental count via a per-customer lognormal price level
+     -> LTV tiers form a gradient (High/Med/Low repeat 72% / 16% / 2%)
+  4. Seasonal share raised toward a leisure-realistic mix
+Trade-off accepted and documented in meta.assumptions: interior years 2024-2025
+read ~39% (bounded-window effect); 2026, the default view, reads ~31%.
+
+    uv run python generate.py        # re-run after the rewrite
+
+> That make sense [keep seasonal share as is] ... shouldnt the data for Oct 25
+> be already [visible]? ... yes, make that change then start Phase 3
+
+Fixed the cohort-matrix cliff: concentrated repeater bursts may now start any month
+and cross one year boundary, so every first-rental month carries a realistic repeat
+mix (was ~all one-timers for Oct-Dec cohorts). Added a short early-2027 continuation
+tail (never shown in the UI) so December 2026 is a real month, not a truncated edge.
+Re-tuned: 2026 reads 33% / B2P 23%, interior years low 40s, ~13% of customers rent
+across more than one calendar year, LTV tiers a gradient (High/Med/Low 65/22/3%).
+
+    uv run python generate.py        # re-run after the cohort fix
+
+---
+
+## Part 3
+
+> yes, make that change then start Phase 3
+
+Strategy step 3: build the Next.js dashboard against the static JSON.
+
+Shell commands run:
+
+    cd .. && mv app/public .scaffold_tmp/public   # keep the generated crm.json
+    npx create-next-app@latest app --typescript --tailwind --eslint --app \
+        --src-dir --use-npm --no-import-alias --no-turbopack --disable-git --yes
+    cp -r .scaffold_tmp/public/data app/public/data && rm -rf .scaffold_tmp
+    cd app
+    npm i recharts@latest
+    npx shadcn@latest init -d -y
+    npx shadcn@latest add card tabs table separator -y
+    npm run build
+
+Stack: Next.js 16 (App Router, client-rendered page), React 19, Tailwind v4,
+shadcn/ui (base-nova / Base UI), recharts 3. Single page, six views, one segment
+toggle + year selector, all KPIs recomputed in the browser from customers[].
+
+> I checked the dashboard ... data for months that havent passed yet in 2026 ...
+> 70% of leisure customers are one-time ...
+> do all three: retune to ~30%, 2026 YTD, add baseline context
+
+Reworked generate.py and the app:
+  1. Retuned the repeater model (concentrated bursts confined to one year, B2P
+     repeaters skew concentrated, ~4% of customers now cross-year) so the yearly
+     repeat rate sits near 30%: 2026 31.7% / B2P 18.6%, 2024-2025 ~34-36%.
+  2. 2026 is now year-to-date through 31 Aug 2026 (snapshot date). No data after.
+     YoY for 2026 compares Jan-Aug vs Jan-Aug 2025; the app labels it "year-to-date".
+  3. Headline now shows the one-time count and the 30% lifetime baseline next to
+     the orange rate. Cohort view dims + labels off-peak / too-recent cohort rows.
+
+    uv run python generate.py        # re-run after the retune
+    npm run build
+
+> please verify everything, if the data is accurate and provide feedbacks
+
+Full verification pass (QA A-E). Client-side KPI computation matches the JSON
+kpis block exactly for all 9 segment x year cells. Found the winter-holiday
+volume bump had gone weak after the retune; lifted Nov/Dec month weights and
+deepened the October trough so Nov-Dec recover visibly. Re-ran the generator.
+
+    uv run python generate.py
+
+---
+
+## Part 5
+
+> Yes please! Use one free openrouter agent as well
+
+Strategy step 5: the chat assistant. Added:
+  - app/src/app/api/chat/route.ts  - the only backend logic. Reads meta + the
+    precomputed kpis block from public/data/crm.json, builds a compact system
+    prompt (no customer array), calls OpenRouter server-side. Missing key -> 503.
+  - app/src/lib/chat-context.ts    - the summary builder.
+  - app/src/components/dashboard/chat.tsx  - the panel (suggestions, message list).
+  - app/.env.local                 - OPENROUTER_API_KEY + OPENROUTER_MODEL
+    (minimax/minimax-m3:free), copied from the repo-root .env; git-ignored.
+Also added a one-line MoM caption in the headline (Aug vs Jul is post-peak).
+
+    cp ../.env app/.env.local        # then edited to keep only the OpenRouter vars
+    npm run build
+    curl -s -X POST localhost:3000/api/chat -d '{"messages":[{"role":"user","content":"..."}]}'
+
+> the chatbot should be kind of a chat on the side, always visible, not in the
+> bottom... most numbers on the Trend are negative, should this be the case?
+> looks like the results of the company are ... super poor.
+
+  - Chat panel became a sticky right-hand sidebar, then (next request) a floating
+    chat bubble bottom-right that opens a panel over the page - the dashboard keeps
+    its full width and is not shrunk.
+  - Data retune: acquisition now grows ~15%/year, assigned deterministically per
+    (channel, profile) group so the growth shows cleanly. Every displayed YoY figure
+    is positive (asserted). Gross volume 2023->2026: 1330 / 1596 / 1820 / 1284 (YTD).
+  - Headline "Trends" split: Year-over-Year is the prominent figure (all positive);
+    "latest month vs prior month" is secondary with a seasonal caption (repeat-rental
+    volume peaks in early autumn, so a Dec/Aug month-to-month dip is seasonal).
+
+    uv run python generate.py
+    npm run build
+
+> the AI chat is still not ideal, can it be a Chat bubble or chat widget? this
+> way doesn't shrink the dashboard
+
+Chat is now a floating bubble (bottom-right): closed = a round button, open = a
+380 x 560 panel that overlays the page. Dashboard returned to full-width single
+column. components/dashboard/chat.tsx -> ChatWidget; lucide-react icons.
+
+---
+
+## Restyle - Sixt fonts + dark theme
+
+> change the fonts as well to match whatever SIXT is currently using? Also
+> explore how you could use the colors to be more dark mode and fancy ... only
+> HTML/CSS max, dont change anything else on the data structure or dashboards
+> structure and logic
+
+Presentation only - no data, KPI logic or component structure changed.
+  - Type: Jost (next/font/google) everywhere - an open geometric sans in the
+    Futura / Neue Plak family, the closest Google-hosted match to Sixt's
+    corporate face. Loaded as --font-jost, composed into --font-sans /
+    --font-heading in globals.css. Card titles bumped to semibold.
+  - Theme: committed dark. globals.css :root now holds a warm near-black palette
+    (page #0b0a09, card #151310, ink #f4efe9) with Sixt orange #ff5f00 kept exact
+    as the single accent. data-theme="dark" fixed on <html>; @custom-variant dark
+    keys off it. Faint orange radial bloom behind the header; cards get a
+    top-lit gradient + hairline highlight + soft shadow; the orange repeat-rate
+    number gets a soft glow (.sixt-accent). Chat bubble is now orange.
+  - lib/palette.ts chart colours re-pointed to the dark set (warm off-white
+    neutral series, white-opacity grid); recharts legend/tooltip/cursor colours
+    updated inline. Hard-coded black/white in cohort, chat, primitives,
+    chart-tooltip and the sticky header swapped to tokens.
+
+    npm run build        # clean; typecheck clean
+
+---
+
+## Data retune - 2024 repeat rate
+
+> core repeat conversion rate is similar on 2024 and 2025, can you do less on
+> 2024. also verify all the data and provide feedback
+
+generate.py weights only - no structural or KPI-logic change.
+  - FIRST_YEAR_ONE_TIME  2024 0.28 -> 0.30, 2025 0.31 -> 0.30 (2024 intake
+    tilted toward one-timers).
+  - FIRST_YEAR_CONCENTRATED  2024 0.29 -> 0.27, 2025 0.32 -> 0.33, 2026 0.21 ->
+    0.24 (repeater acquisition shifted from 2024 into 2025; 2026 lifted so its
+    Jan-Aug first-rent YoY stays positive against the higher 2025 base).
+  - New asserts: 2025 rate - 2024 rate >= 0.025 and 2024 All rate <= 0.345.
+  - Result: All Repeat Conversion Rate 2024 34.2% / 2025 38.0% / 2026 31.4% YTD
+    (was 36.6 / 36.7 / 30.2 - now a visible upward step). Gross volume 1278 /
+    1603 / 1813 / 1363; every displayed YoY still positive. Docstring +
+    assumptions.yearly_vs_lifetime_rate / growth reworded: 2024 reads lower
+    because that year's fast acquisition growth was one-timer-heavy.
+
+    uv run python generate.py        # all asserts pass
+    # + scratchpad/verify.py: 40,350 independent re-derived checks, 0 failures
+
+> Can you please apply the recommendations? Also, verify if theres anything
+> needed to change in the pdf after this changes.
+
+Applied the feedback from the previous step (generate.py weights only):
+  - rec 1 (2024 gross jump was +25%): raised 2023 one-time weight; 2024 growth
+    now +22%, with a new assert gv[2024]/gv[2023] <= 1.25.
+  - rec 2 (2025 first-rent YoY was a thin +2.9%): raised 2025 one-time weight ->
+    2025 first-rent YoY now +6.8%.
+  - rec 3 (2025 rate was 38.0%, near the ceiling): trimmed 2025 concentrated
+    weight -> 2025 rate 36.7%; new assert rate_2025 <= 0.375.
+  - rec 4 (bimodal repeat gaps): unchanged - it is the spec's fixed 60-90 /
+    330-365 band, a documented simplification, not a regression.
+  Final: All Repeat Conversion Rate 34.6% / 36.7% / 32.6% YTD; gross 1281 /
+  1569 / 1774 / 1412; every displayed YoY positive; step assert relaxed to
+  >= 1.8pp. Docstring + assumptions text refreshed (2024 ~35%, 2025 ~37%).
+
+One-pager (docs/repeat-rate-onepager.html) refreshed for the new figures and
+re-published to the same artifact URL:
+  - blended rate 30.2% -> 32.6% YTD; "held near 30%" -> "runs a few points above
+    ... trending up"; "grows ~15%/yr" -> "grows double digits".
+  - Channel Breakdown callout: B2P 19% -> 21%, B2C 41% -> 44%, B2P one-time
+    81% -> 80%; hypothesis projection 19%->26% becomes 21%->29%.
+  - Engagement reach 38% -> 39%. 70% / 2,800 and the 60-90 / 330-365 clusters
+    unchanged (still exact).
+
+    uv run python generate.py        # asserts pass
+    uv run python scratchpad/verify.py   # 40,266 checks, 0 failures
+    npm run build                    # clean
+
+> Can you add a way to see all years together? ... All Time. Also ... Quarters
+> ... multiselect ... Before implementing let me know the technical implications
+> ... [then] I accept the recommendations. Please implement
+
+Assessed first (quarterly repeat-rate swings 48-63% are window-length + season
+artifacts, not retention; full multi-select breaks YoY/MoM/cohort). Implemented
+recommendations 1-3 only:
+
+  1. "All Time" period option (4th button, single-select). Pools 2023-2026.
+     - lib/crm.ts: ALL_TIME sentinel + YearSel type + isAllTime / yearLabel.
+     - lib/kpis.ts: every year-keyed fn takes YearSel; all-time = no year filter,
+       no YoY/MoM, population = all customers (rate = 30.0% exactly).
+     - headline: hides the Trends grid, relabels; the one-time count line now
+       states "this IS the 30% lifetime rate".
+     - cohort: 12 rows pooled by first-ever-rental calendar month - a fuller
+       retention curve per month (the 6-12mo / 12mo+ columns gain real signal).
+     - generate.py: build_kpi_block adds an "all_time" cell per segment; new
+       asserts (all-time All = 0.30, below every yearly rate, gross = sum).
+  2. Monthly / Quarterly toggle on the headline contract chart only (local
+     state, toQuarterly() rollup, partial-quarter caption). Retention metrics
+     stay at year / all-time granularity by design.
+  3. "All Years at a Glance" card (components/dashboard/trend.tsx): 2024/2025/
+     2026 side by side (not summed) - Gross Volume + Repeat Rate mini-charts,
+     a dashed lifetime-rate reference line, selected period highlighted.
+
+  Assumptions panel + chat context updated (all_time_view, quarterly_view;
+  chat can now answer about the All Time pool). Data unchanged (same seed).
+
+    uv run python generate.py               # asserts pass
+    uv run python scratchpad/verify.py      # 40,291 checks, 0 failures
+    ./node_modules/.bin/tsc --noEmit        # clean
+    npm run build                           # clean

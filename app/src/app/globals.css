@@ -1,0 +1,152 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/*
+  Sixt CRM dashboard - dark theme.
+
+  Typography: Jost (geometric sans, Futura / Neue Plak family) for everything,
+  matching Sixt's corporate face. Uppercase eyebrow labels carry the brand voice.
+
+  Palette (committed dark - overrides the spec's white/black):
+  - Accent Orange #FF5F00: focal KPIs, key chart series, the repeat metric. Used
+    sparingly and given a soft glow so it reads as the one "live" colour.
+  - Grounds: warm near-blacks (#0b0a09 page, #151310 card) with a faint orange
+    bloom behind the header.
+  - Ink: warm off-white #f4efe9, never pure white, stepped down with opacity for
+    secondary and muted text.
+  - Lines: white at 5-16% opacity for borders, gridlines, tracks.
+
+  data-theme="dark" is fixed on <html>; dark: utilities key off it.
+*/
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-heading: var(--font-sans);
+
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-grid: var(--grid);
+
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  color-scheme: dark;
+
+  --font-sans: var(--font-jost), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  --radius: 0.625rem;
+
+  --background: #0b0a09;
+  --foreground: #f4efe9;
+
+  --card: #151310;
+  --card-foreground: #f4efe9;
+  --popover: #1c1815;
+  --popover-foreground: #f4efe9;
+
+  --primary: #f4efe9;
+  --primary-foreground: #0b0a09;
+  --secondary: rgba(255, 255, 255, 0.06);
+  --secondary-foreground: #f4efe9;
+
+  --muted: rgba(255, 255, 255, 0.05);
+  --muted-foreground: rgba(244, 239, 233, 0.58);
+  --accent: rgba(255, 95, 0, 0.14);
+  --accent-foreground: #ffb488;
+
+  --brand: #ff5f00;
+  --brand-foreground: #ffffff;
+
+  --destructive: #ff5f00;
+  --border: rgba(255, 255, 255, 0.09);
+  --grid: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.16);
+  --ring: rgba(255, 95, 0, 0.55);
+
+  /* Chart series: focal orange, then warm off-white / greys for neutral series. */
+  --chart-1: #ff5f00;
+  --chart-2: #e7ded2;
+  --chart-3: rgba(244, 239, 233, 0.55);
+  --chart-4: rgba(244, 239, 233, 0.22);
+  --chart-5: rgba(244, 239, 233, 0.12);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    font-family: var(--font-sans);
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    background-color: var(--background);
+    background-image:
+      radial-gradient(
+        58rem 46rem at 90% -12%,
+        rgba(255, 95, 0, 0.16),
+        transparent 62%
+      ),
+      radial-gradient(
+        44rem 40rem at -8% 4%,
+        rgba(255, 95, 0, 0.05),
+        transparent 55%
+      );
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+  }
+
+  /* Elevated card: faint top-lit gradient, hairline highlight, soft drop shadow. */
+  [data-slot="card"] {
+    background-image: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.035),
+      rgba(255, 255, 255, 0) 44%
+    );
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.05),
+      0 20px 44px -28px rgba(0, 0, 0, 0.75);
+  }
+}
+
+/* Soft glow on the one focal metric (the orange repeat rate). */
+.sixt-accent {
+  text-shadow: 0 0 30px rgba(255, 95, 0, 0.4);
+}
