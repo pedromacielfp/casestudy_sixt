@@ -106,7 +106,7 @@ export function CohortView({
           />
           <div className="h-56 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={histogram} margin={{ top: 4, right: 8, bottom: 0, left: -16 }}>
+              <BarChart data={histogram} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
                 <CartesianGrid vertical={false} stroke={COLORS.grid} />
                 <ReferenceArea x1="60" x2="90" fill="rgba(255,255,255,0.06)" />
                 <ReferenceArea x1="330" x2="360" fill="rgba(255,255,255,0.06)" />
