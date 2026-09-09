@@ -26,12 +26,27 @@ Requires Node 20+. From `app/`:
 Optional. Needs an [OpenRouter](https://openrouter.ai) key in `app/.env.local`:
 
     OPENROUTER_API_KEY=sk-or-...
-    OPENROUTER_MODEL=minimax/minimax-m3:free
+    OPENROUTER_MODEL=nvidia/nemotron-3-super-120b-a12b:free
 
 The route `app/src/app/api/chat/route.ts` calls OpenRouter server-side (the key
 never reaches the browser) and sends only the `meta` block and the precomputed
 KPI summary, never the customer data. Without the key the panel shows a notice
 and the rest of the dashboard is unaffected.
+
+The assistant is scoped to this dashboard only. Anything off-topic (general
+knowledge, coding, questions about the model itself, writing tasks, investment
+advice) gets a fixed refusal: _"Sorry, I can only answer questions about this
+dashboard..."_. The scope rules and refusal string live in
+`app/src/lib/chat-context.ts`.
+
+To check it, with the dev server running:
+
+    npm run chat:eval        # fires in-scope + out-of-scope questions, prints pass/fail
+
+The free OpenRouter model is rate-limited; running the eval a few times in a row
+returns HTTP 429, which the script reports as `SKIP` (not a failure). Wait a
+minute and rerun, or add a small credit balance to the OpenRouter account to
+raise the limit.
 
 ## Layout
 

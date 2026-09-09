@@ -66,7 +66,7 @@ export function ChatWidget() {
             <div className="flex flex-col">
               <span className="text-sm font-semibold">Dashboard assistant</span>
               <span className="text-[11px] text-muted-foreground">
-                Answers and recommendations from this dataset
+                Only answers questions about this dashboard&apos;s data
               </span>
             </div>
             <button

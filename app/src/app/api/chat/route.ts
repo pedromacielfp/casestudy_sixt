@@ -5,7 +5,7 @@ import { buildSystemPrompt } from "@/lib/chat-context";
 import type { Crm } from "@/lib/crm";
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
-const FALLBACK_MODEL = "meta-llama/llama-3.3-70b-instruct:free";
+const FALLBACK_MODEL = "nvidia/nemotron-3-super-120b-a12b:free";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -50,36 +50,43 @@ export async function POST(request: Request) {
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 30_000);
+  const body = JSON.stringify({
+    model: process.env.OPENROUTER_MODEL || FALLBACK_MODEL,
+    temperature: 0.2,
+    max_tokens: 700,
+    // This is a lookup + fixed-format-refusal task; a reasoning trace only
+    // risks eating the token budget before any content is emitted.
+    reasoning: { enabled: false },
+    messages: [{ role: "system", content: await systemPrompt() }, ...messages],
+  });
   try {
-    const res = await fetch(OPENROUTER_URL, {
-      method: "POST",
-      signal: controller.signal,
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "X-Title": "Sixt CRM Dashboard",
-      },
-      body: JSON.stringify({
-        model: process.env.OPENROUTER_MODEL || FALLBACK_MODEL,
-        temperature: 0.2,
-        max_tokens: 700,
-        messages: [
-          { role: "system", content: await systemPrompt() },
-          ...messages,
-        ],
-      }),
-    });
+    // The free-tier model occasionally returns an empty completion; one retry
+    // clears it without the user seeing an error.
+    let reply: string | undefined;
+    for (let attempt = 0; attempt < 2 && !reply; attempt += 1) {
+      const res = await fetch(OPENROUTER_URL, {
+        method: "POST",
+        signal: controller.signal,
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+          "X-Title": "Sixt CRM Dashboard",
+        },
+        body,
+      });
 
-    if (!res.ok) {
-      const detail = (await res.text()).slice(0, 200);
-      return Response.json(
-        { error: `The model request failed (${res.status}).`, detail },
-        { status: 502 },
-      );
+      if (!res.ok) {
+        const detail = (await res.text()).slice(0, 200);
+        return Response.json(
+          { error: `The model request failed (${res.status}).`, detail },
+          { status: 502 },
+        );
+      }
+
+      const data = await res.json();
+      reply = data.choices?.[0]?.message?.content?.trim() || undefined;
     }
 
-    const data = await res.json();
-    const reply: string | undefined = data.choices?.[0]?.message?.content?.trim();
     if (!reply) {
       return Response.json(
         { error: "The model returned an empty response." },
