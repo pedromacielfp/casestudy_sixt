@@ -4,10 +4,11 @@
 An MVP dashboard prototype tracking one-time-to-repeat customer conversion for Sixt's US leisure rentals.
 
 ### Core Baseline & Churn Rules
-* 70% of leisure customers are one-time renters (lifetime); 30% are repeaters.
-* Customer headcount is split exactly 50/50 B2C vs B2P.
-* B2P one-time rate is ~80%; B2C is ~60%. Combined this is 70% overall. Among one-timers the mix is ~57% B2P / 43% B2C (B2P is acquisition-heavy).
-* B2C can show higher Gross Volume than B2P because repeaters add extra contracts. The Channel view must make that readable; do not force B2P to "win" total volume.
+* 70% of leisure customers are one-time renters (lifetime); 30% are repeaters. That is 2,800 one-timers / 1,200 repeaters of 4,000.
+* Per the brief, the one-time renters split **exactly 50/50** between B2C and B2P: 1,400 each.
+* B2P churns harder, so it holds far fewer repeaters (~350 vs B2C's ~850). This tilts total headcount to B2C (~2,250 B2C / ~1,750 B2P, about 56/44) and produces the channel gap: B2P repeats ~20% all-time, B2C ~38%. B2P one-time rate ~80%, B2C ~62%.
+* Total headcount is deliberately NOT forced to 50/50: with one-timers 50/50 and overall churn 70%, a 50/50 headcount would make the two channels' repeat rates identical and erase the channel gap.
+* B2C can show higher Gross Volume than B2P because repeaters add extra contracts (and B2C now has more customers). The Channel view must make that readable; do not force B2P to "win" total volume.
 
 ### Metric Definitions (lock these; do not mix units)
 Population for a selected year: unique customers with at least one rental whose start date falls in that year.
@@ -29,15 +30,15 @@ To ensure the dashboard looks realistic and presentation-ready, the Python data 
 * **Time span:** Generate rental activity across three complete calendar years the UI can inspect (**2024, 2025, 2026**) plus **2023** only so 2024 YoY is defined. Treat each of 2024–2026 as a full year (no YTD partial year).
 * **U.S. Leisure Seasonality:** Clear volume spike in Summer (June–August) and around the Winter Holidays (November–December). Q1 (January–March) must show significantly lower rental volumes. Seasonality must be visible in every generated year.
 * **B2C vs. B2P Behavior Variance:**
-  * **B2C (Direct):** Higher average lifetime value (LTV) per transaction, higher response rate to retention campaigns, higher organic repeat rate (~40% repeat / ~60% one-time).
-  * **B2P (Partners/Brokers):** Steeper churn (~80% one-time), lower average order value due to broker commissions/discounts. Heavier share of one-time / first-rent volume, not necessarily higher Gross Volume.
+  * **B2C (Direct):** Higher average lifetime value (LTV) per transaction, higher response rate to retention campaigns, higher organic repeat rate (~38% repeat / ~62% one-time).
+  * **B2P (Partners/Brokers):** Steeper churn (~80% one-time), lower average order value due to broker commissions/discounts. Same count of one-time customers as B2C, but far fewer repeaters. Not necessarily higher Gross Volume.
 * **Time-to-Next-Rental Logic:** Repeat bookings cannot be random. Repeaters are either:
   * **Frequent Leisure:** next rental 60–90 days later; over three years they may have 3+ rentals.
   * **Seasonal Leisure:** next rental 330–365 days later (annual vacation); over three years they typically have one trip per year.
 * **Data Consistency:** Chronological integrity. Every later rental starts after the previous one ends. No overlapping rental periods for the same customer.
 * **LTV tiers:** Split customers into High / Medium / Low by tercile of total spend (top / middle / bottom third). High must show the highest repeat conversion rate.
 * **Engagement:** Assign campaign engagement (Email, Push, or SMS vs none) with a higher rate for B2C. Plant a higher lifetime repeat rate among engaged customers so the engagement chart has a clear story. State this in the Assumptions panel.
-* The Python script must assert the 70% lifetime one-time rate and the 50/50 channel headcount when creating records.
+* The Python script must assert the 70% lifetime one-time rate and the exactly-50/50 split of one-timers across B2C / B2P when creating records.
 
 ### Layout Structure
 Single page, six views only:
@@ -102,7 +103,7 @@ Fail any item = fix, then re-run that section. Browser checks must click through
 ### A. Data generation
 * Generator writes both `analytics/output/crm.json` and `app/public/data/crm.json`.
 * Lifetime one-time customers = 70%; repeaters = 30%.
-* B2C vs B2P unique-customer headcount is 50/50; B2P one-time ~80%; B2C ~60%.
+* One-time customers split exactly 50/50 B2C / B2P (1,400 each); B2P one-time ~80%, B2C ~62%; total headcount ~56/44 B2C-heavy.
 * No overlapping rentals; every later rental starts after the previous one ends.
 * Repeaters are only frequent (60–90 days) or seasonal (330–365 days).
 * Monthly volumes spike Jun–Aug and Nov–Dec; Q1 is materially lower; pattern repeats in 2024, 2025, and 2026.

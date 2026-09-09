@@ -30,12 +30,13 @@ one number — the Core Repeat Conversion Rate — and every initiative reads ou
 
 **Say:**
 "Seventy percent of customers in the dataset rent once and never return —
-2,800 of 4,000. The orange number is the one I care about: unique lifetime
-repeaters divided by all unique customers in the period. It sits just above its
-30% lifetime baseline and it moves year to year — 34.6, then 36.7, then 32.6
-year-to-date in 2026. The dashboard has one segment toggle and one year selector,
-and six views. Each of my three initiatives is anchored to one of those views —
-so this isn't three guesses, it's three gaps the data already shows."
+2,800 of 4,000, and per the brief they split exactly 50/50 between the direct and
+partner channels, 1,400 each. The orange number is the one I care about: unique
+lifetime repeaters divided by all unique customers in the period. It sits just
+above its 30% lifetime baseline and it moves year to year — 34.5, then 36.6, then
+32.7 year-to-date in 2026. The dashboard has one segment toggle and one year
+selector, and six views. Each of my three initiatives is anchored to one of those
+views — so this isn't three guesses, it's three gaps the data already shows."
 
 **Transition:** "First gap — marketing engagement."
 
@@ -46,13 +47,13 @@ so this isn't three guesses, it's three gaps the data already shows."
 **On screen:** "Reached customers repeat at twice the rate"; Engagement + LTV screenshot.
 
 **Say:**
-"Customers who got a retention campaign repeat at about 42%; those who didn't, at
-about 22%. Now — that relationship is planted in the mock data and it's
+"Customers who got a retention campaign repeat at about 44%; those who didn't, at
+about 20%. Now — that relationship is planted in the mock data and it's
 correlational, so I'm not claiming the campaign causes the lift. What I am
-claiming is the reach gap is real leverage: two-thirds of direct customers get
-touched by a campaign, but only 39% of partner customers do. We're not even
+claiming is the reach gap is real leverage: about two-thirds of direct customers
+get touched by a campaign, but only 39% of partner customers do. We're not even
 running the programme against the people most likely to churn.
-One aside — the High-LTV tier repeats at 72%, but that's a spend-level proxy, not
+One aside — the High-LTV tier repeats at 69%, but that's a spend-level proxy, not
 a lever. It tells me where the value is, not what to send."
 
 **Transition:** "So Initiative 1 is about closing that reach gap."
@@ -82,15 +83,17 @@ lift across the enrolled base moves the blended rate about 2 points."
 
 ## Slide 5 — Signal for Initiative 2: Channel Breakdown
 
-**On screen:** "B2P is half the base and barely repeats"; Channel Breakdown screenshot.
+**On screen:** "Same intake, half the retention"; Channel Breakdown screenshot.
 
 **Say:**
-"Partner customers repeat at 21%. Direct customers repeat at 44%. And partner is
-80% one-time and about half the whole customer base — so it's the single biggest
-drag on the blended number. Direct can still show more Gross Volume because its
-repeaters book extra contracts, so this isn't a volume problem. It's a
-relationship problem: a broker booking never creates the account, the saved card,
-or the marketing consent that a direct booking does."
+"Partner customers repeat at 21%, direct customers at 42%. Here's the key: the
+business acquires the same number of one-time customers through each channel —
+about 1,400 each — but partner runs 80% one-time versus direct's 62%. Same
+acquisition cost, far worse retention, so partner is the single biggest drag on
+the blended number. Direct can still show more Gross Volume because its repeaters
+book extra contracts, so this isn't a volume problem. It's a relationship
+problem: a broker booking never creates the account, the saved card, or the
+marketing consent that a direct booking does."
 
 **Transition:** "So Initiative 2 tries to create that relationship, once."
 
@@ -104,13 +107,15 @@ or the marketing consent that a direct booking does."
 "At pickup or return, prompt the partner customer to create a direct Sixt account,
 with a bounded incentive on their next booking on sixt.com — 25 euros off,
 expires in six months. The bet is that one direct booking establishes the account,
-the payment method and the consent, and the relationship follows.
+the payment method and the consent, and the relationship follows. That should
+move the partner repeat rate about a third of the way toward direct — from ~20%
+to ~26%.
 Randomise at pickup, 50/50, stratified by broker partner so no single partner
 skews it. Primary metric is the 365-day repeat rate of treated partner customers
 versus control, and I'd watch the funnel underneath — account created, next rental
 booked direct, incentive redeemed. Guardrail is that incremental margin per
 converted customer stays positive after the incentive cost.
-Impact: closing even a third of the direct-to-partner gap, on half the base,
+Impact: closing even a third of that gap across the ~1,750 partner customers
 lifts the blended rate 2 to 3 points."
 
 **Transition:** "Third gap — timing. When does rebooking actually happen?"
@@ -122,11 +127,11 @@ lifts the blended rate 2 to 3 points."
 **On screen:** "Rebooking happens in two windows"; Cohort matrix + histogram screenshot.
 
 **Say:**
-"Time-to-next-rental isn't spread out — it's two clean clusters. About 1,100
+"Time-to-next-rental isn't spread out — it's two clean clusters. About 1,090
 customers rebook at 60 to 90 days; those are the frequent renters. A much smaller
-group, around 99, rebook at roughly a year — the annual-trip renters.
+group, around 110, rebook at roughly a year — the annual-trip renters.
 The cohort matrix adds a timing problem on top. Customers acquired January to
-September rebook at about 37% ever. Customers acquired October to December rebook
+September rebook at about 38% ever. Customers acquired October to December rebook
 at 2 to 6%. They're acquired off-peak, and a fixed monthly newsletter almost never
 lands inside either planning window."
 
@@ -148,7 +153,7 @@ off-peak cohort separately. Primary metric is second-rental rate at 120 days for
 the frequent arm and 400 days for the seasonal arm. I also track incremental
 conversions per thousand sends, because send volume should stay flat or drop.
 Impact: I've rated this medium. The standalone seasonal effect is small — that
-arm is only about 99 customers today. But it multiplies Initiative 1 through
+arm is only about 110 customers today. But it multiplies Initiative 1 through
 better timing, and it's the one thing that rescues the near-zero Q4 cohort."
 
 **Transition:** "All three read out the same way — here's the measurement spine."
@@ -201,12 +206,25 @@ message, a prompt, a cadence — and every one is judged on the same orange numb
 
 ## Anticipated questions
 
-- **"Why not an LTV initiative? High-LTV repeats at 72%."**
+- **"The brief says one-timers split 50/50 by channel — does the data respect that?"**
+  Yes, exactly: 1,400 one-time B2C and 1,400 one-time B2P. Total headcount then
+  tilts to B2C (about 56/44, ~2,250 / ~1,750) because B2C retains better and so
+  accumulates more repeaters over time. The brief specifies the one-timer split,
+  not the headcount split.
+
+- **"Then why isn't total headcount 50/50?"**
+  It can't be, given the rest of the brief. If one-timers are 50/50 *and*
+  headcount is 50/50 *and* overall churn is 70%, then B2C and B2P have identical
+  repeat rates by arithmetic — and the channel gap, the whole basis for
+  Initiative 2, disappears. Letting headcount float is what keeps the model
+  internally consistent.
+
+- **"Why not an LTV initiative? High-LTV repeats at 69%."**
   LTV tier is defined by total spend, so it's downstream of repeat behaviour, not
   a lever. I can target *price level* (trade-up offers) but I can't target "be
   high-LTV". The three initiatives act on mechanisms, not on an outcome variable.
 
-- **"Your cohort matrix shows Jan-2026 acquisitions rebooking at 55%. That
+- **"Your cohort matrix shows Jan-2026 acquisitions rebooking at 64%. That
   contradicts 70% one-time."**
   Different denominators. 70% is the *lifetime* rate across the whole base.
   Early-month cohorts in a single year are enriched for frequent repeaters who
@@ -215,7 +233,7 @@ message, a prompt, a cadence — and every one is judged on the same orange numb
 
 - **"The engagement lift is planted in the data — isn't Initiative 1 circular?"**
   The *lift* is correlational and I don't lean on its size. Initiative 1 is
-  justified by the *reach gap* (39% vs 66%), which is a coverage fact, and the
+  justified by the *reach gap* (39% vs 64%), which is a coverage fact, and the
   test is what would establish a real causal effect.
 
 - **"Isn't €25 off every B2P next booking expensive?"**

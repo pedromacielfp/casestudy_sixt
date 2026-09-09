@@ -5,9 +5,11 @@ Run: uv run python generate.py
 Writes analytics/output/crm.json and app/public/data/crm.json.
 
 The model:
-  - 4,000 customers, exactly 50/50 B2C / B2P by headcount.
-  - Lifetime one-time rate is fixed by channel: B2P 80% one-time, B2C 60% one-time,
-    which averages to 70% overall. Among one-timers the mix is ~57% B2P / 43% B2C.
+  - 4,000 customers. 70% are lifetime one-timers (2,800), split exactly 50/50
+    between B2C and B2P per the brief - 1,400 each. The 1,200 repeaters skew hard
+    to B2C because B2P (broker) customers churn faster, so total headcount tilts
+    B2C: ~2,250 B2C / ~1,750 B2P (about 56/44). This keeps B2P at 80% one-time /
+    20% repeat and puts B2C near 62% one-time / 38% repeat.
   - Repeaters follow one of three profiles:
       * concentrated  - a short burst of 2-4 rentals 60-90 days apart, confined to
                         its first calendar year. Most repeaters. Keeps the yearly
@@ -57,8 +59,15 @@ DATA_START = date(2023, 1, 1)
 DATA_END = date(CURRENT_YEAR, CURRENT_MONTH, 31)
 AS_OF = DATA_END.isoformat()
 
-# Channel behaviour.
-CHANNEL_ONE_TIME_RATE = {"B2P": 0.80, "B2C": 0.60}
+# Channel composition. Per the brief, the 2,800 lifetime one-timers split exactly
+# 50/50 between the channels (1,400 each). The 1,200 repeaters skew hard to B2C
+# because B2P (broker) customers churn faster - this is what tilts total headcount
+# toward B2C and drives the channel gap in the repeat rate.
+#   B2C: 1,400 one-time + 850 repeat = 2,250 total -> 37.8% repeat
+#   B2P: 1,400 one-time + 350 repeat = 1,750 total -> 20.0% repeat
+ONE_TIMERS_PER_CHANNEL = 1400
+CHANNEL_REPEATERS = {"B2C": 850, "B2P": 350}
+assert ONE_TIMERS_PER_CHANNEL * 2 + sum(CHANNEL_REPEATERS.values()) == N_CUSTOMERS
 
 # Repeater profiles as a share of all repeaters (concentrated takes the rest).
 # "concentrated" burns out inside its first calendar year, so it keeps the yearly
@@ -130,18 +139,18 @@ def random_day_in_month(rng: random.Random, year: int, month: int) -> date:
 
 
 def build_channels(rng: random.Random) -> list[str]:
-    half = N_CUSTOMERS // 2
-    channels = ["B2C"] * half + ["B2P"] * half
+    counts = {ch: ONE_TIMERS_PER_CHANNEL + CHANNEL_REPEATERS[ch] for ch in ("B2C", "B2P")}
+    channels = ["B2C"] * counts["B2C"] + ["B2P"] * counts["B2P"]
     rng.shuffle(channels)
     return channels
 
 
 def assign_repeater_flags(rng: random.Random, channels: list[str]) -> list[bool]:
-    """Deterministic repeater counts per channel so the marginals land exactly."""
+    """Deterministic repeater counts per channel so the marginals land exactly:
+    one-timers split 50/50 by channel, the 1,200 repeaters skewed to B2C."""
     flags = [False] * N_CUSTOMERS
-    for channel in ("B2C", "B2P"):
+    for channel, n_repeaters in CHANNEL_REPEATERS.items():
         idx = [i for i, c in enumerate(channels) if c == channel]
-        n_repeaters = round(len(idx) * (1 - CHANNEL_ONE_TIME_RATE[channel]))
         for i in rng.sample(idx, n_repeaters):
             flags[i] = True
     return flags
@@ -456,19 +465,21 @@ def active_years(customer: dict) -> set[int]:
 def check(customers: list[dict], kpis: dict) -> None:
     b2c = [c for c in customers if c["channel"] == "B2C"]
     b2p = [c for c in customers if c["channel"] == "B2P"]
-    assert len(b2c) == len(b2p) == N_CUSTOMERS // 2, "channel headcount is not 50/50"
+    assert len(b2c) + len(b2p) == N_CUSTOMERS, "channels do not cover every customer"
 
     one_timers = [c for c in customers if not c["lifetime_repeater"]]
     one_time_rate = rate(len(one_timers), len(customers))
     assert 0.68 <= one_time_rate <= 0.72, f"lifetime one-time rate {one_time_rate:.3f}"
 
+    # Per the brief: the one-timers split exactly 50/50 between the channels.
+    b2p_share_of_ot = rate(sum(c["channel"] == "B2P" for c in one_timers), len(one_timers))
+    assert abs(b2p_share_of_ot - 0.50) < 0.02, f"B2P share of one-timers {b2p_share_of_ot:.3f} (want ~50%)"
+
+    # B2P still churns harder, so its lifetime one-time rate stays high and B2C's lower.
     b2p_ot = rate(sum(not c["lifetime_repeater"] for c in b2p), len(b2p))
     b2c_ot = rate(sum(not c["lifetime_repeater"] for c in b2c), len(b2c))
     assert 0.76 <= b2p_ot <= 0.84, f"B2P one-time rate {b2p_ot:.3f}"
-    assert 0.56 <= b2c_ot <= 0.64, f"B2C one-time rate {b2c_ot:.3f}"
-
-    b2p_share_of_ot = rate(sum(c["channel"] == "B2P" for c in one_timers), len(one_timers))
-    assert 0.53 <= b2p_share_of_ot <= 0.61, f"B2P share of one-timers {b2p_share_of_ot:.3f}"
+    assert 0.58 <= b2c_ot <= 0.66, f"B2C one-time rate {b2c_ot:.3f}"
 
     # Chronology: no overlapping rentals for a customer.
     for c in customers:
@@ -549,7 +560,8 @@ def check(customers: list[dict], kpis: dict) -> None:
     # (population = every customer, counted once), and below every single-year rate.
     at = {s: kpis[s]["all_time"]["repeat_conversion_rate"] for s in ("all", "B2C", "B2P")}
     assert abs(at["all"] - 0.30) < 0.003, f"all-time All rate {at['all']:.3f} != 0.30"
-    assert abs(at["B2C"] - 0.40) < 0.003 and abs(at["B2P"] - 0.20) < 0.003, f"all-time channel rates {at}"
+    assert abs(at["B2P"] - 0.20) < 0.01, f"all-time B2P rate {at['B2P']:.3f} != ~0.20"
+    assert 0.35 <= at["B2C"] <= 0.41, f"all-time B2C rate {at['B2C']:.3f} not in ~0.36-0.40"
     for year in AVAILABLE_YEARS:
         assert kpis["all"][str(year)]["repeat_conversion_rate"] > at["all"], \
             f"{year} yearly rate should exceed the all-time rate"
@@ -638,10 +650,10 @@ def definitions() -> dict:
 def assumptions() -> dict:
     return {
         "lifetime_one_time_rate": 0.70,
-        "channel_split": "50/50 B2C / B2P by unique customer headcount.",
+        "channel_split": "The 2,800 lifetime one-timers split exactly 50/50 between B2C and B2P. B2P churns harder so it holds fewer repeaters, tilting total headcount to B2C (about 56/44: ~2,250 B2C / ~1,750 B2P).",
         "b2p_one_time_rate": 0.80,
-        "b2c_one_time_rate": 0.60,
-        "one_timer_channel_mix": "About 57% B2P / 43% B2C among one-timers; B2P is acquisition-heavy.",
+        "b2c_one_time_rate": 0.62,
+        "one_timer_channel_mix": "Exactly 50/50 B2C / B2P among one-timers, per the brief. B2P is acquisition-heavy: it brings in as many customers as B2C but keeps far fewer.",
         "repeater_types": "Repeaters are frequent (next rental 60-90 days later) or seasonal (about a year later, one summer trip). Most frequent repeaters do their whole burst inside one calendar year; roughly 4% of all customers rent across more than one calendar year, and B2P repeaters almost never do.",
         "current_period": "2024 and 2025 are complete calendar years. 2026 is year-to-date through 31 August 2026 (the last closed month); its Gross Volume, trends and cohorts cover January-August only, and its YoY compares against January-August 2025.",
         "all_time_view": "The period control has an All Time option that pools every rental in the dataset (2023-2026). Its Core Repeat Conversion Rate equals the 30% lifetime rate exactly, because the population is every customer counted once. Single-year views read a few points higher only because a repeat customer appears in every year they rent. All Time has no Year-over-Year or Month-over-Month figure.",

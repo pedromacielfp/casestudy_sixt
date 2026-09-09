@@ -48,11 +48,13 @@ export function buildInsightsBlock(customers: Customer[]): string {
   const b2c = channels.find((r) => r.channel === "B2C")!;
   const b2p = channels.find((r) => r.channel === "B2P")!;
   const base = b2c.population + b2p.population;
+  const b2pOneTimers = Math.round(b2p.population * (1 - b2p.repeatConversionRate));
   lines.push(
     `Channel gap (All Time): B2C repeats at ${formatPct(b2c.repeatConversionRate, 1)}, ` +
       `B2P at ${formatPct(b2p.repeatConversionRate, 1)} (${gapPts(b2c.repeatConversionRate, b2p.repeatConversionRate)} gap). ` +
-      `B2P is ${formatInt(b2p.population)} of ${formatInt(base)} customers (${formatPct(b2p.population / base)}), ` +
-      `so closing the B2P gap moves the most customers even though the rate is lower.`,
+      `Per the brief the lifetime one-timers split 50/50 by channel - B2P and B2C each hold about ${formatInt(b2pOneTimers)} - ` +
+      `but B2P's one-time rate is far higher (${formatPct(1 - b2p.repeatConversionRate, 0)} vs ${formatPct(1 - b2c.repeatConversionRate, 0)}). ` +
+      `Same intake, worse retention: B2P is ${formatInt(b2p.population)} of ${formatInt(base)} customers (${formatPct(b2p.population / base)}) and the structural drag on the blended rate.`,
   );
 
   // Campaign engagement lift and reach, per segment.

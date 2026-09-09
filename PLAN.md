@@ -30,9 +30,9 @@ Scope:
 Success criteria:
 - [x] Generator writes both `analytics/output/crm.json` and `app/public/data/crm.json`
 - [x] Lifetime one-time customers = 70%; repeaters = 30% - asserted (exact by construction)
-- [x] B2C vs B2P headcount 50/50 - asserted (2000 / 2000)
-- [x] B2P one-time 80%; B2C one-time 60% (exact by construction)
-- [x] Among one-timers the mix is ~57% B2P / 43% B2C (0.571; asserted)
+- [x] One-timers split exactly 50/50 B2C / B2P - 1,400 each, per the brief (asserted)
+- [x] B2P one-time 80%; B2C one-time ~62% (exact by construction: 1400/1750, 1400/2250)
+- [x] Total headcount tilts B2C ~56/44 (2,250 / 1,750) because B2P holds fewer repeaters - keeps the channel gap
 - [x] No overlapping rentals; every later rental starts after the previous one ends (asserted)
 - [x] Repeaters are only frequent (60-90 days) or seasonal (330-365 days) (asserted)
 - [x] Monthly volume spikes Jun-Aug and Nov-Dec; Q1 materially lower; pattern repeats 2023-2026 (asserted)
